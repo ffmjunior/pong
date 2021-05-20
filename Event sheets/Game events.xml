@@ -1,0 +1,678 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<c2eventsheet>
+    <!--All the 'name' attributes are ignored by Construct 2 - they are there for readability only.-->
+    <name>Game events</name>
+    <events>
+        <variable constant="1" name="GAME_NAME" sid="2783528050303823" static="0" type="text">pong-761416e5-7fb4-41ea-b236-f8c9de0a1a14</variable>
+        <variable constant="1" name="INSTANCE_NAME" sid="313861102059647" static="0" type="text">default</variable>
+        <variable constant="1" name="ROOM_NAME" sid="9805164627532191" static="0" type="text">game</variable>
+        <variable comment='&quot;waiting&quot;, &quot;getready&quot;, &quot;go&quot; or &quot;started&quot;' constant="0" name="GameState" sid="3497618279861636" static="0" type="text">waiting</variable>
+        <event-group description="Manage connection and signalling between peers." sid="5828038468308097" title="Network and Signaling">
+            <sub-events>
+                <comment>Here, we set the components that we need to sync.</comment>
+                <event-block sid="4621074164691963">
+                    <conditions>
+                        <condition id="-2" name="On start of layout" sid="8545342922442215" type="System" />
+                    </conditions>
+                    <actions>
+                        <action id="15" name="Add client input value" sid="7636630703004805" type="Multiplayer">
+                            <param id="0" name="Tag">&quot;y&quot;</param>
+                            <param id="1" name="Precision">2</param>
+                            <param id="2" name="Interpolation">1</param>
+                        </action>
+                        <action id="11" name="Sync object" sid="2351988127461845" type="Multiplayer">
+                            <param id="0" name="Object">Paddle</param>
+                            <param id="1" name="Data">1</param>
+                            <param id="2" name="Precision">2</param>
+                            <param id="3" name="Bandwidth">0</param>
+                        </action>
+                        <action id="12" name="Sync instance variable" sid="6184510421650488" type="Multiplayer">
+                            <param id="0" name="Object">Paddle</param>
+                            <param id="1" name="Instance variable">Paddle|points</param>
+                            <param id="2" name="Precision">2</param>
+                            <param id="3" name="Interpolation">0</param>
+                            <param id="4" name="Client value tag">&quot;&quot;</param>
+                        </action>
+                        <action id="11" name="Sync object" sid="9035884092730128" type="Multiplayer">
+                            <param id="0" name="Object">Ball</param>
+                            <param id="1" name="Data">1</param>
+                            <param id="2" name="Precision">2</param>
+                            <param id="3" name="Bandwidth">0</param>
+                        </action>
+                        <action id="1" name="Connect" sid="7537126393271732" type="Multiplayer">
+                            <param id="0" name="Server">&quot;wss://multiplayer.scirra.com&quot;</param>
+                        </action>
+                        <action id="11" name="Sync object" sid="491547454324528" type="Multiplayer">
+                            <param id="0" name="Object">txt_delay</param>
+                            <param id="1" name="Data">1</param>
+                            <param id="2" name="Precision">2</param>
+                            <param id="3" name="Bandwidth">0</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <comment>When connected, request to log in. We display that on the log screen.</comment>
+                <event-block sid="6173368493187684">
+                    <conditions>
+                        <condition id="2" name="On connected" sid="633718780657259" type="Multiplayer" />
+                    </conditions>
+                    <actions>
+                        <action id="0" name="Call function" sid="4471249425451181" type="Function">
+                            <param id="0" name="Name">&quot;AddLog&quot;</param>
+                            <param id="1" name="Parameter {n}">&quot;Connected, logging in...&quot;</param>
+                        </action>
+                        <action id="4" name="Log in" sid="5152430702167834" type="Multiplayer">
+                            <param id="0" name="Alias">MyUsername</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <comment>When logged in, request to join the room. Use auto-join to assign pairs of players in to separate rooms.</comment>
+                <event-block sid="7761898484234081">
+                    <conditions>
+                        <condition id="4" name="On logged in" sid="5883027386699968" type="Multiplayer" />
+                    </conditions>
+                    <actions>
+                        <action id="0" name="Call function" sid="2772881125840144" type="Function">
+                            <param id="0" name="Name">&quot;AddLog&quot;</param>
+                            <param id="1" name="Parameter {n}">&quot;Logged in with alias: &quot; &amp; Multiplayer.MyAlias &amp; &quot; (&quot; &amp; Multiplayer.MyID &amp; &quot;)&quot; &amp; newline &amp; &quot;Joining room...&quot;</param>
+                        </action>
+                        <action id="19" name="Auto-join room" sid="8803625540397218" type="Multiplayer">
+                            <param id="0" name="Game">GAME_NAME</param>
+                            <param id="1" name="Instance">INSTANCE_NAME</param>
+                            <param id="2" name="First room">ROOM_NAME</param>
+                            <param id="3" name="Max peers">2</param>
+                            <param id="4" name="Locking">0</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <comment>The first player to join the room is set to be the host. It is responsible for controllong the messaging</comment>
+                <event-block sid="1579184355259559">
+                    <conditions>
+                        <condition id="5" name="On joined room" sid="9574597696892548" type="Multiplayer" />
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <comment>Host settings.</comment>
+                        <event-block sid="611524856039149">
+                            <conditions>
+                                <condition id="10" name="Is host" sid="6151152733133221" type="Multiplayer" />
+                            </conditions>
+                            <actions>
+                                <action id="0" name="Call function" sid="7519364054339538" type="Function">
+                                    <param id="0" name="Name">&quot;AddLog&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;Joined room as host, waiting for peer...&quot;</param>
+                                </action>
+                                <action id="-12" name="Set group active" sid="5094248200865487" type="System">
+                                    <param id="0" name="Group name">&quot;Host&quot;</param>
+                                    <param id="1" name="State">1</param>
+                                </action>
+                                <action id="-10" name="Set value" sid="7688405092844826" type="Paddle">
+                                    <param id="0" name="Instance variable">peerid</param>
+                                    <param id="1" name="Value">Multiplayer.MyID</param>
+                                </action>
+                                <action id="13" name="Associate object with peer" sid="4474902942186349" type="Multiplayer">
+                                    <param id="0" name="Object">Paddle</param>
+                                    <param id="1" name="Peer ID">Multiplayer.MyID</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>Peer settings</comment>
+                        <event-block sid="8025172574882813">
+                            <conditions>
+                                <condition id="-22" name="Else" sid="4491209143547917" type="System" />
+                            </conditions>
+                            <actions>
+                                <action id="0" name="Call function" sid="1836078895724226" type="Function">
+                                    <param id="0" name="Name">&quot;AddLog&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;Joined room as peer&quot;</param>
+                                </action>
+                                <action id="-12" name="Set group active" sid="3086355252968577" type="System">
+                                    <param id="0" name="Group name">&quot;Peer&quot;</param>
+                                    <param id="1" name="State">1</param>
+                                </action>
+                                <action id="0" name="Call function" sid="9292313233183488" type="Function">
+                                    <param id="0" name="Name">&quot;AddLog&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;Attempting to establish connection to host...&quot;</param>
+                                </action>
+                                <action id="-9" name="Destroy" sid="9105323197347259" type="Paddle" />
+                                <action id="-9" name="Destroy" sid="8235530725836447" type="Ball" />
+                                <action id="-9" name="Set value" sid="3072757141383501" type="System">
+                                    <param id="0" name="Variable">GameState</param>
+                                    <param id="1" name="Value">&quot;getready&quot;</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+                <comment>If we leave, get disconnected or encounter an error, add it to the log.</comment>
+                <event-block sid="3191386697509821">
+                    <conditions>
+                        <condition id="3" name="On disconnected" sid="7355024061540087" type="Multiplayer" />
+                    </conditions>
+                    <actions>
+                        <action id="0" name="Call function" sid="9387019022730535" type="Function">
+                            <param id="0" name="Name">&quot;AddLog&quot;</param>
+                            <param id="1" name="Parameter {n}">&quot;Signalling disconnected&quot;</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <event-block sid="7454512880658015">
+                    <conditions>
+                        <condition id="1" name="On error" sid="7405991194607134" type="Multiplayer" />
+                    </conditions>
+                    <actions>
+                        <action id="0" name="Call function" sid="6681798860206169" type="Function">
+                            <param id="0" name="Name">&quot;AddLog&quot;</param>
+                            <param id="1" name="Parameter {n}">&quot;Signalling error: &quot; &amp; Multiplayer.ErrorMessage</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <event-block sid="833882481570433">
+                    <conditions>
+                        <condition id="6" name="On left room" sid="4349773980818516" type="Multiplayer" />
+                    </conditions>
+                    <actions>
+                        <action id="0" name="Call function" sid="4110183784093897" type="Function">
+                            <param id="0" name="Name">&quot;AddLog&quot;</param>
+                            <param id="1" name="Parameter {n}">&quot;Signalling: left room&quot;</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <event-block sid="5945267911170749">
+                    <conditions>
+                        <condition id="14" name="On kicked" sid="3123559417693109" type="Multiplayer" />
+                    </conditions>
+                    <actions>
+                        <action id="0" name="Call function" sid="3541078117429122" type="Function">
+                            <param id="0" name="Name">&quot;AddLog&quot;</param>
+                            <param id="1" name="Parameter {n}">&quot;Kicked (either could not connect to host or host quit)&quot;</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <comment>Update the NetStats text object in the bottom left with details like the peer count, inbound and outbound bandwidth, host ping and PDV.</comment>
+                <event-block sid="6222937938240554">
+                    <conditions>
+                        <condition id="-1" name="Every tick" sid="5568020922559877" type="System" />
+                    </conditions>
+                    <actions>
+                        <action id="0" name="Set text" sid="3573965697186698" type="NetStats">
+                            <param id="0" name="Text">Multiplayer.StatInboundCount &amp; &quot; in (&quot; &amp; (round(Multiplayer.StatInboundBandwidth/100)/10) &amp; &quot; k) / sec&quot; &#x0D;&#x0A;&amp; newline &amp; &#x0D;&#x0A;Multiplayer.StatOutboundCount &amp; &quot; out (&quot; &amp; (round(Multiplayer.StatOutboundBandwidth/100)/10) &amp; &quot; k) / sec&quot; &#x0D;&#x0A;&amp; newline &amp; &#x0D;&#x0A;&quot;Host ping &quot; &amp; Multiplayer.PeerLatency(Multiplayer.HostID) &amp; &quot; ms&quot; &#x0D;&#x0A;&amp; newline &amp;&#x0D;&#x0A;&quot;PDV &quot; &amp; round(Multiplayer.PeerPDV(Multiplayer.HostID)) &#x0D;&#x0A;&amp; newline &amp; &#x0D;&#x0A;&quot;ESTIMATED DELAY &quot; &amp; txt_delay.delay</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-group>
+        <event-group description="Gameplay e sincronização" sid="8255319576193919" title="Jogo">
+            <sub-events>
+                <event-group description="Configurações do peer" inactive="1" sid="3251139189519888" title="Peer">
+                    <sub-events>
+                        <event-block sid="1051554076065893">
+                            <conditions>
+                                <condition id="-18" name="On created" sid="128854278609083" type="Paddle" />
+                            </conditions>
+                            <actions>
+                                <action id="-10" name="Set value" sid="5022147858615494" type="Paddle">
+                                    <param id="0" name="Instance variable">peerid</param>
+                                    <param id="1" name="Value">Multiplayer.PeerID</param>
+                                </action>
+                                <action id="13" name="Associate object with peer" sid="5675541743454471" type="Multiplayer">
+                                    <param id="0" name="Object">Paddle</param>
+                                    <param id="1" name="Peer ID">Multiplayer.PeerID</param>
+                                </action>
+                            </actions>
+                            <sub-events>
+                                <event-block sid="522900701980287">
+                                    <conditions>
+                                        <condition id="-7" name="Compare instance variable" sid="362325847969284" type="Paddle">
+                                            <param id="0" name="Instance variable">peerid</param>
+                                            <param id="1" name="Comparison">0</param>
+                                            <param id="2" name="Value">Multiplayer.PeerID</param>
+                                        </condition>
+                                    </conditions>
+                                    <actions>
+                                        <action id="16" name="Enable local input prediction" sid="285034867989877" type="Multiplayer">
+                                            <param id="0" name="Object">Paddle</param>
+                                        </action>
+                                    </actions>
+                                </event-block>
+                            </sub-events>
+                        </event-block>
+                        <comment>We set the engine do send the Y component of the input once it moves only in this axis.</comment>
+                        <event-block sid="2007320409318159">
+                            <conditions>
+                                <condition id="17" name="On client update" sid="3792084110379575" type="Multiplayer" />
+                            </conditions>
+                            <actions>
+                                <action id="14" name="Set client state" sid="1498586099997287" type="Multiplayer">
+                                    <param id="0" name="Tag">&quot;y&quot;</param>
+                                    <param id="1" name="Value">Mouse.Y(&quot;Game&quot;)</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>Identification of the game state as set by the host.</comment>
+                        <event-block sid="8085045636054926">
+                            <conditions>
+                                <condition id="15" name="On peer message" sid="5112850211255173" type="Multiplayer">
+                                    <param id="0" name="Tag">&quot;gamestate-changed&quot;</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="-9" name="Set value" sid="228336959095656" type="System">
+                                    <param id="0" name="Variable">GameState</param>
+                                    <param id="1" name="Value">Multiplayer.Message</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-group>
+                <event-group description="Configurações no host" inactive="1" sid="5993157518437331" title="Host">
+                    <sub-events>
+                        <comment>As the host, when a peer joins we create a new paddle for them on the right. &apos;Sync object&apos; will cause it to be created for the peer too. We also begin the game: we set the state to &quot;getready&quot; for 3 seconds, then upon &quot;go&quot; we set the ball moving and 1 second later set the state to &quot;started&quot; (so the score appears instead of &quot;GO!&quot;).</comment>
+                        <event-block sid="3431678512597868">
+                            <conditions>
+                                <condition id="11" name="On peer connected" sid="5278329796908354" type="Multiplayer" />
+                            </conditions>
+                            <actions>
+                                <action id="-3" name="Create object" sid="71668082977051" type="System">
+                                    <param id="0" name="Object to create">Paddle</param>
+                                    <param id="1" name="Layer">&quot;Game&quot;</param>
+                                    <param id="2" name="X">LayoutWidth - 38</param>
+                                    <param id="3" name="Y">LayoutHeight / 2</param>
+                                </action>
+                                <action id="-10" name="Set value" sid="3882820210993065" type="Paddle">
+                                    <param id="0" name="Instance variable">peerid</param>
+                                    <param id="1" name="Value">Multiplayer.PeerID</param>
+                                </action>
+                                <action id="13" name="Associate object with peer" sid="5439525522788724" type="Multiplayer">
+                                    <param id="0" name="Object">Paddle</param>
+                                    <param id="1" name="Peer ID">Multiplayer.PeerID</param>
+                                </action>
+                                <action id="0" name="Call function" sid="219906305270076" type="Function">
+                                    <param id="0" name="Name">&quot;SetGameState&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;getready&quot;</param>
+                                </action>
+                                <action id="-16" name="Wait" sid="5401589863544145" type="System">
+                                    <param id="0" name="Seconds">3</param>
+                                </action>
+                                <action id="0" name="Call function" sid="3527003321311834" type="Function">
+                                    <param id="0" name="Name">&quot;SetGameState&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;go&quot;</param>
+                                </action>
+                                <action behavior="Bullet" id="5" name="Set enabled" sid="9144919781367504" type="Ball">
+                                    <param id="0" name="State">1</param>
+                                </action>
+                                <action behavior="Bullet" id="3" name="Set angle of motion" sid="1263264710828137" type="Ball">
+                                    <param id="0" name="Angle">random(360)</param>
+                                </action>
+                                <action id="-16" name="Wait" sid="3515869543774811" type="System">
+                                    <param id="0" name="Seconds">1</param>
+                                </action>
+                                <action id="0" name="Call function" sid="2125883395595069" type="Function">
+                                    <param id="0" name="Name">&quot;SetGameState&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;started&quot;</param>
+                                </action>
+                                <action id="3" name="Set enabled" sid="749665352795976" type="bt_delay">
+                                    <param id="0" name="Mode">1</param>
+                                </action>
+                                <action id="2" name="Set visible" sid="683894785586371" type="bt_delay">
+                                    <param id="0" name="Visibility">1</param>
+                                </action>
+                                <action id="4" name="Set enabled" sid="528483039683036" type="txt_delay">
+                                    <param id="0" name="Mode">1</param>
+                                </action>
+                                <action id="3" name="Set visible" sid="556572538988820" type="txt_delay">
+                                    <param id="0" name="Visibility">1</param>
+                                </action>
+                                <action id="3" name="Set enabled" sid="487472271096438" type="bt_reset">
+                                    <param id="0" name="Mode">1</param>
+                                </action>
+                                <action id="2" name="Set visible" sid="420888484025077" type="bt_reset">
+                                    <param id="0" name="Visibility">1</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>This function updates the game state and also sends the new state to the peer so they see what the host sees.</comment>
+                        <event-block sid="5182904213929673">
+                            <conditions>
+                                <condition id="0" name="On function" sid="733023288263706" type="Function">
+                                    <param id="0" name="Name">&quot;SetGameState&quot;</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="-9" name="Set value" sid="3850033729877685" type="System">
+                                    <param id="0" name="Variable">GameState</param>
+                                    <param id="1" name="Value">Function.Param(0)</param>
+                                </action>
+                                <action id="9" name="Broadcast message" sid="3714647666621411" type="Multiplayer">
+                                    <param id="0" name="From ID">&quot;&quot;</param>
+                                    <param id="1" name="Tag">&quot;gamestate-changed&quot;</param>
+                                    <param id="2" name="Message">GameState</param>
+                                    <param id="3" name="Mode">0</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>There is only one other peer in the game, and we keep them positioned at the peer&apos;s &quot;y&quot; input, which is the Y position of their mouse.</comment>
+                        <event-block sid="4570279322295458">
+                            <conditions>
+                                <condition id="-7" name="Compare instance variable" sid="4856916247078836" type="Paddle">
+                                    <param id="0" name="Instance variable">peerid</param>
+                                    <param id="1" name="Comparison">1</param>
+                                    <param id="2" name="Value">Multiplayer.MyID</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="-2" name="Set Y" sid="9648398059570602" type="Paddle">
+                                    <param id="0" name="Y">Multiplayer.PeerState(Paddle.peerid, &quot;y&quot;)</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>Every time the ball bounces, increase its speed a little.</comment>
+                        <event-block sid="976556906738424">
+                            <conditions>
+                                <condition id="0" name="On collision with another object" sid="2001806660139492" type="Ball">
+                                    <param id="0" name="Object">Paddle</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action behavior="Bullet" id="0" name="Set speed" sid="8255797946942359" type="Ball">
+                                    <param id="0" name="Speed">Ball.Bullet.Speed + 5</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>If the ball goes off the left of the screen, add one to the points for the rival (the non-host player) and reset the ball after 2 seconds.</comment>
+                        <event-block sid="8214790798736758">
+                            <conditions>
+                                <condition id="-1" name="Compare X" sid="1539075819066631" type="Ball">
+                                    <param id="0" name="Comparison">2</param>
+                                    <param id="1" name="X co-ordinate">0</param>
+                                </condition>
+                                <condition id="-4" name="Trigger once while true" sid="948836149387587" type="System" />
+                                <condition id="-7" name="Compare instance variable" sid="5941384265439786" type="Paddle">
+                                    <param id="0" name="Instance variable">peerid</param>
+                                    <param id="1" name="Comparison">1</param>
+                                    <param id="2" name="Value">Multiplayer.HostID</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="-11" name="Add to" sid="3343552742104934" type="Paddle">
+                                    <param id="0" name="Instance variable">points</param>
+                                    <param id="1" name="Value">1</param>
+                                </action>
+                                <action id="-16" name="Wait" sid="16729121141262" type="System">
+                                    <param id="0" name="Seconds">2</param>
+                                </action>
+                                <action id="-3" name="Set position" sid="7876891170458021" type="Ball">
+                                    <param id="0" name="X">LayoutWidth / 2</param>
+                                    <param id="1" name="Y">LayoutHeight / 2</param>
+                                </action>
+                                <action behavior="Bullet" id="3" name="Set angle of motion" sid="7897953363421803" type="Ball">
+                                    <param id="0" name="Angle">random(360)</param>
+                                </action>
+                                <action behavior="Bullet" id="0" name="Set speed" sid="6972683760382006" type="Ball">
+                                    <param id="0" name="Speed">300</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>If the ball goes off the right of the screen, add one to the points of the host and reset the ball after 2 seconds.</comment>
+                        <event-block sid="3532692207809401">
+                            <conditions>
+                                <condition id="-1" name="Compare X" sid="2473744716493834" type="Ball">
+                                    <param id="0" name="Comparison">4</param>
+                                    <param id="1" name="X co-ordinate">LayoutWidth</param>
+                                </condition>
+                                <condition id="-4" name="Trigger once while true" sid="3592675170481432" type="System" />
+                                <condition id="-7" name="Compare instance variable" sid="9103998714241692" type="Paddle">
+                                    <param id="0" name="Instance variable">peerid</param>
+                                    <param id="1" name="Comparison">0</param>
+                                    <param id="2" name="Value">Multiplayer.HostID</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="-11" name="Add to" sid="2467645149496059" type="Paddle">
+                                    <param id="0" name="Instance variable">points</param>
+                                    <param id="1" name="Value">1</param>
+                                </action>
+                                <action id="-16" name="Wait" sid="2124002499279481" type="System">
+                                    <param id="0" name="Seconds">2</param>
+                                </action>
+                                <action id="-3" name="Set position" sid="59328913074039" type="Ball">
+                                    <param id="0" name="X">LayoutWidth / 2</param>
+                                    <param id="1" name="Y">LayoutHeight / 2</param>
+                                </action>
+                                <action behavior="Bullet" id="3" name="Set angle of motion" sid="7802321595637116" type="Ball">
+                                    <param id="0" name="Angle">random(360)</param>
+                                </action>
+                                <action behavior="Bullet" id="0" name="Set speed" sid="3599903141407386" type="Ball">
+                                    <param id="0" name="Speed">300</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-group>
+                <event-group description="Events that are common to both the host and peers." sid="5870562097836775" title="Common">
+                    <sub-events>
+                        <comment>Whenever a peer joins or leaves, log the event so the user can see what happened.</comment>
+                        <event-block sid="4933736723213277">
+                            <conditions>
+                                <condition id="11" name="On peer connected" sid="8555101434504378" type="Multiplayer" />
+                            </conditions>
+                            <actions>
+                                <action id="0" name="Call function" sid="6832361032981173" type="Function">
+                                    <param id="0" name="Name">&quot;AddLog&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;&apos;&quot; &amp; Multiplayer.PeerAlias &amp; &quot;&apos; joined&quot;</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <event-block sid="6299574777196556">
+                            <conditions>
+                                <condition id="13" name="On peer disconnected" sid="8841003295953043" type="Multiplayer" />
+                            </conditions>
+                            <actions>
+                                <action id="0" name="Call function" sid="5163636283188274" type="Function">
+                                    <param id="0" name="Name">&quot;AddLog&quot;</param>
+                                    <param id="1" name="Parameter {n}">&quot;&apos;&quot; &amp; Multiplayer.PeerAlias &amp; &quot;&apos; left&quot;</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>Regardless of whether we are host or peer, we want our own paddle to position to the mouse.</comment>
+                        <event-block sid="2538876316377638">
+                            <conditions>
+                                <condition id="-7" name="Compare instance variable" sid="6037413767085703" type="Paddle">
+                                    <param id="0" name="Instance variable">peerid</param>
+                                    <param id="1" name="Comparison">0</param>
+                                    <param id="2" name="Value">Multiplayer.MyID</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="-2" name="Set Y" sid="1801887774823927" type="Paddle">
+                                    <param id="0" name="Y">Mouse.Y(&quot;Game&quot;)</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>Syncing objects does not necessarily put objects on the right layer, since the layer information is not synced. So always ensure game objects are on the game layer.</comment>
+                        <event-block sid="5649120662471453">
+                            <conditions>
+                                <condition id="-1" name="Every tick" sid="4628645942487063" type="System" />
+                            </conditions>
+                            <actions>
+                                <action id="-26" name="Move to layer" sid="7434418277838572" type="Paddle">
+                                    <param id="0" name="Layer">&quot;Game&quot;</param>
+                                </action>
+                                <action id="-26" name="Move to layer" sid="8963738103372956" type="Ball">
+                                    <param id="0" name="Layer">&quot;Game&quot;</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>Update the score display text depending on the game state.</comment>
+                        <event-block sid="5654651542316563">
+                            <conditions>
+                                <condition id="-14" name="Compare variable" sid="7493184287491467" type="System">
+                                    <param id="0" name="Variable">GameState</param>
+                                    <param id="1" name="Comparison">0</param>
+                                    <param id="2" name="Value">&quot;getready&quot;</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="0" name="Set text" sid="7071613643466203" type="ScoreDisplay">
+                                    <param id="0" name="Text">&quot;Get ready...&quot;</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <event-block sid="2596735365493907">
+                            <conditions>
+                                <condition id="-14" name="Compare variable" sid="4607931974681779" type="System">
+                                    <param id="0" name="Variable">GameState</param>
+                                    <param id="1" name="Comparison">0</param>
+                                    <param id="2" name="Value">&quot;go&quot;</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="0" name="Set text" sid="1015898186500768" type="ScoreDisplay">
+                                    <param id="0" name="Text">&quot;GO!&quot;</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <comment>When &quot;started&quot;, display the score: host on left and peer on right.</comment>
+                        <event-block sid="3728775312120144">
+                            <conditions>
+                                <condition id="-14" name="Compare variable" sid="2790818214299881" type="System">
+                                    <param id="0" name="Variable">GameState</param>
+                                    <param id="1" name="Comparison">0</param>
+                                    <param id="2" name="Value">&quot;started&quot;</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="0" name="Set text" sid="5238071338692494" type="ScoreDisplay">
+                                    <param id="0" name="Text">&quot;&quot;</param>
+                                </action>
+                            </actions>
+                            <sub-events>
+                                <event-block sid="2401490947748528">
+                                    <conditions>
+                                        <condition id="-7" name="Compare instance variable" sid="1540985070825532" type="Paddle">
+                                            <param id="0" name="Instance variable">peerid</param>
+                                            <param id="1" name="Comparison">0</param>
+                                            <param id="2" name="Value">Multiplayer.HostID</param>
+                                        </condition>
+                                    </conditions>
+                                    <actions>
+                                        <action id="1" name="Append text" sid="7964661074155851" type="ScoreDisplay">
+                                            <param id="0" name="Text">Multiplayer.HostAlias &amp; &quot; &quot; &amp; Paddle.points &amp; &quot; - &quot;</param>
+                                        </action>
+                                    </actions>
+                                </event-block>
+                                <event-block sid="9976591003827068">
+                                    <conditions>
+                                        <condition id="-7" inverted="1" name="Compare instance variable" sid="964446949088725" type="Paddle">
+                                            <param id="0" name="Instance variable">peerid</param>
+                                            <param id="1" name="Comparison">0</param>
+                                            <param id="2" name="Value">Multiplayer.HostID</param>
+                                        </condition>
+                                    </conditions>
+                                    <actions>
+                                        <action id="1" name="Append text" sid="4447902950072001" type="ScoreDisplay">
+                                            <param id="0" name="Text">Paddle.points &amp; &quot; &quot; &amp; Multiplayer.PeerAliasFromID(Paddle.peerid)</param>
+                                        </action>
+                                    </actions>
+                                </event-block>
+                            </sub-events>
+                        </event-block>
+                    </sub-events>
+                </event-group>
+            </sub-events>
+        </event-group>
+        <event-group description="Methods to manage messages displayed on the player&apos;s screens." sid="1791290436183513" title="Information">
+            <sub-events>
+                <event-block sid="3741239314027745">
+                    <conditions>
+                        <condition id="0" name="On function" sid="3529265392166413" type="Function">
+                            <param id="0" name="Name">&quot;AddLog&quot;</param>
+                        </condition>
+                    </conditions>
+                    <actions>
+                        <action id="5" name="Push" sid="6698752194726339" type="LogMessages">
+                            <param id="0" name="Where">0</param>
+                            <param id="1" name="Value">Function.Param(0)</param>
+                            <param id="2" name="Axis">0</param>
+                        </action>
+                    </actions>
+                    <sub-events>
+                        <event-block sid="983278788832114">
+                            <conditions>
+                                <condition id="7" name="Compare size" sid="7310059575582961" type="LogMessages">
+                                    <param id="0" name="Axis">0</param>
+                                    <param id="1" name="Comparison">4</param>
+                                    <param id="2" name="Value">20</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="6" name="Pop" sid="5192169645031299" type="LogMessages">
+                                    <param id="0" name="Where">1</param>
+                                    <param id="1" name="Axis">0</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <event-block sid="1153148489572105">
+                            <conditions />
+                            <actions>
+                                <action id="0" name="Set text" sid="5708448294984055" type="LogText">
+                                    <param id="0" name="Text">&quot;&quot;</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                        <event-block sid="3063742801630883">
+                            <conditions>
+                                <condition id="3" name="For each element" sid="9969388581769486" type="LogMessages">
+                                    <param id="0" name="Axes">2</param>
+                                </condition>
+                            </conditions>
+                            <actions>
+                                <action id="1" name="Append text" sid="6284233068137536" type="LogText">
+                                    <param id="0" name="Text">LogMessages.CurValue &amp; newline</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+            </sub-events>
+        </event-group>
+        <event-group description="" sid="767198199229528" title="Delay Control">
+            <sub-events>
+                <event-block sid="650177848368402">
+                    <conditions>
+                        <condition id="0" name="On clicked" sid="522587480596956" type="bt_delay" />
+                    </conditions>
+                    <actions>
+                        <action id="-10" name="Set value" sid="170974459419530" type="txt_delay">
+                            <param id="0" name="Instance variable">delay</param>
+                            <param id="1" name="Value">int(txt_delay.Text)</param>
+                        </action>
+                        <action id="10" name="Simulate latency" sid="562288204499487" type="Multiplayer">
+                            <param id="0" name="Latency">int(txt_delay.delay)/1000</param>
+                            <param id="1" name="PDV">0.0</param>
+                            <param id="2" name="Packet loss">0.0</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <event-block sid="760208061456172">
+                    <conditions>
+                        <condition id="0" name="On clicked" sid="408887431387466" type="bt_reset" />
+                    </conditions>
+                    <actions>
+                        <action id="-10" name="Set value" sid="891689718204086" type="txt_delay">
+                            <param id="0" name="Instance variable">delay</param>
+                            <param id="1" name="Value">0</param>
+                        </action>
+                        <action id="0" name="Set text" sid="426094101676035" type="txt_delay">
+                            <param id="0" name="Text">&quot;0&quot;</param>
+                        </action>
+                        <action id="10" name="Simulate latency" sid="283478302836442" type="Multiplayer">
+                            <param id="0" name="Latency">0.0</param>
+                            <param id="1" name="PDV">0.0</param>
+                            <param id="2" name="Packet loss">0.0</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-group>
+    </events>
+</c2eventsheet>

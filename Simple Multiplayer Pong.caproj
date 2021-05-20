@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<c2project>
+    <name>Simple Multiplayer Pong</name>
+    <description></description>
+    <version>1.0.0.0</version>
+    <author></author>
+    <author-email></author-email>
+    <author-website>http://</author-website>
+    <app-id>com.kokku.pong</app-id>
+    <unique-id>11p9kixz7scmw</unique-id>
+    <saved-with-version>27900</saved-with-version>
+    <used-plugins>
+        <plugin author="Scirra" id="Arr" version="1">Array</plugin>
+        <plugin author="Scirra" id="Button" version="1">Button</plugin>
+        <plugin author="Scirra" id="Function" version="1">Function</plugin>
+        <plugin author="Scirra" id="Keyboard" version="1">Keyboard</plugin>
+        <plugin author="Scirra" id="Mouse" version="1">Mouse</plugin>
+        <plugin author="Scirra" id="Multiplayer" version="1">Multiplayer</plugin>
+        <plugin author="Scirra" id="Sprite" version="1">Sprite</plugin>
+        <plugin author="Scirra" id="Text" version="1">Text</plugin>
+        <plugin author="Scirra" id="TextBox" version="1">Text box</plugin>
+        <plugin author="Scirra" id="TiledBg" version="1">Tiled Background</plugin>
+    </used-plugins>
+    <used-behaviors>
+        <behavior author="Scirra" id="Bullet" version="1">Bullet</behavior>
+        <behavior author="Scirra" id="solid" version="1">Solid</behavior>
+    </used-behaviors>
+    <used-effects />
+    <configurations>
+        <configuration exporter-descname="HTML5" exporter-id="html5" name="HTML5" />
+    </configurations>
+    <window-size>
+        <width>1024</width>
+        <height>768</height>
+    </window-size>
+    <pixel-rounding>0</pixel-rounding>
+    <preview-effects>1</preview-effects>
+    <first-layout>Login</first-layout>
+    <use-loader-layout>0</use-loader-layout>
+    <configuration-settings>
+        <prop name="Clear background">Yes</prop>
+        <prop name="Enable WebGL">On</prop>
+        <prop name="Fullscreen in browser">Letterbox scale</prop>
+        <prop name="Fullscreen scaling">High quality</prop>
+        <prop name="Loader style">Progress bar &amp; logo</prop>
+        <prop name="Orientations">Any</prop>
+        <prop name="Pause on unfocus">No</prop>
+        <prop name="Physics engine">Box2D web</prop>
+        <prop name="Preview browser">Chrome</prop>
+        <prop name="Sampling">Linear</prop>
+        <prop name="Use high-DPI display">Yes</prop>
+    </configuration-settings>
+    <object-folder>
+        <object-folder name="Game">
+            <object-type name="NetStats" sid="7872346465716915">
+                <plugin id="Text" />
+            </object-type>
+            <object-type name="Paddle" sid="9680992601730884">
+                <plugin id="Sprite" />
+                <instance-variables>
+                    <instance-variable name="peerid" sid="2040649148875527" type="string" />
+                    <instance-variable name="points" sid="7316904981992262" type="number" />
+                </instance-variables>
+                <behaviors>
+                    <behavior-type name="Solid" sid="5452218702345515">
+                        <behavior id="solid" />
+                    </behavior-type>
+                </behaviors>
+                <animation-folder>
+                    <animation framecount="1" loop="0" name="Default" pingpong="0" repeatcount="1" repeatto="0" sid="8757907285038088" speed="5">
+                        <frame duration="1" hotspotX="0.5" hotspotY="0.5">
+                            <image-point name="Imagepoint 1" x="1.04" y="0.513333" />
+                        </frame>
+                    </animation>
+                </animation-folder>
+            </object-type>
+            <object-type name="LogText" sid="9807058034727937">
+                <plugin id="Text" />
+            </object-type>
+            <object-type global="1" name="LogMessages" sid="7120908255200915">
+                <plugin id="Arr" />
+            </object-type>
+            <object-type name="Ball" sid="8102294499693503">
+                <plugin id="Sprite" />
+                <behaviors>
+                    <behavior-type name="Bullet" sid="2035262410266827">
+                        <behavior id="Bullet" />
+                    </behavior-type>
+                </behaviors>
+                <animation-folder>
+                    <animation framecount="1" loop="0" name="Default" pingpong="0" repeatcount="1" repeatto="0" sid="673189901599088" speed="5">
+                        <frame duration="1" hotspotX="0.50505" hotspotY="0.50505">
+                            <collision-poly>
+                                <point x="0.151515" y="0.151515" />
+                                <point x="0.39899" y="0.00757575" />
+                                <point x="0.848485" y="0.151515" />
+                                <point x="0.989899" y="0.494949" />
+                                <point x="0.848485" y="0.848485" />
+                                <point x="0.646464" y="0.979798" />
+                                <point x="0.151515" y="0.848485" />
+                                <point x="0.010101" y="0.494949" />
+                            </collision-poly>
+                        </frame>
+                    </animation>
+                </animation-folder>
+            </object-type>
+            <object-type name="Barrier" sid="7664876777186781">
+                <plugin id="TiledBg" />
+                <behaviors>
+                    <behavior-type name="Solid" sid="8826626145312583">
+                        <behavior id="solid" />
+                    </behavior-type>
+                </behaviors>
+                <texture />
+            </object-type>
+            <object-type name="ScoreDisplay" sid="5355376445521427">
+                <plugin id="Text" />
+            </object-type>
+        </object-folder>
+        <object-folder name="Delay Control">
+            <object-type name="bt_delay" sid="718232183375718">
+                <plugin id="Button" />
+            </object-type>
+            <object-type name="txt_delay" sid="305289867628293">
+                <plugin id="TextBox" />
+                <instance-variables>
+                    <instance-variable name="delay" sid="494725061111441" type="number" />
+                </instance-variables>
+            </object-type>
+            <object-type name="bt_reset" sid="429013252875129">
+                <plugin id="Button" />
+            </object-type>
+        </object-folder>
+        <object-folder name="Login screen">
+            <object-type name="JoinButton" sid="1468454303974339">
+                <plugin id="Button" />
+            </object-type>
+            <object-type name="Title" sid="8010562696573082">
+                <plugin id="Text" />
+            </object-type>
+            <object-type name="NameTextBox" sid="7734770936964156">
+                <plugin id="TextBox" />
+            </object-type>
+            <object-type name="FormLabel" sid="6727226572753588">
+                <plugin id="Text" />
+            </object-type>
+        </object-folder>
+        <object-type name="Multiplayer" sid="3325403568138769">
+            <plugin id="Multiplayer" />
+        </object-type>
+        <object-type name="Mouse" sid="3522564967722714">
+            <plugin id="Mouse" />
+        </object-type>
+        <object-type name="Keyboard" sid="9237758063730793">
+            <plugin id="Keyboard" />
+        </object-type>
+        <object-type name="Function" sid="3957817719758575">
+            <plugin id="Function" />
+        </object-type>
+    </object-folder>
+    <families />
+    <layout-folder>
+        <layout>Login.xml</layout>
+        <layout>Game.xml</layout>
+    </layout-folder>
+    <event-folder>
+        <event-sheet>Game events.xml</event-sheet>
+        <event-sheet>Login events.xml</event-sheet>
+    </event-folder>
+    <global-instances>
+        <global-instance type="Multiplayer" uid="2" />
+        <global-instance type="Mouse" uid="11" />
+        <global-instance type="Keyboard" uid="15" />
+        <global-instance type="Function" uid="30" />
+    </global-instances>
+    <sounds-folder />
+    <music-folder />
+    <files-folder>
+        <file-folder name="Icons">
+            <file name="icon-16.png" />
+            <file name="icon-32.png" />
+            <file name="icon-114.png" />
+            <file name="icon-128.png" />
+            <file name="icon-256.png" />
+            <file name="loading-logo.png" />
+        </file-folder>
+    </files-folder>
+</c2project>
